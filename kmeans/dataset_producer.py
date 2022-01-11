@@ -7,12 +7,18 @@
 import random as rd
 import numpy as np
 from typing import Tuple
-
+import matplotlib.pyplot as plt
+import pylab
+FIG_SIZE=(6,6)
 class Dataset:
 
     def __init__(self,path='',data=[]):
         self.path=path
         self.data=data
+
+        if self.path!='':
+            self.load_data()
+
     @property
     def size(self):
         return self.data.shape[0]
@@ -36,11 +42,11 @@ class Dataset:
             # print("该数据集有%d个%d维数据" % (data.shape[0], data.shape[1]))
         return self.data
 
-    def write_data(self,new_path):
+    def write_data(self):
         """
         将numpy_ndarray输出到txt文件
         """
-        np.savetxt(new_path,self.data,delimiter='\t')
+        np.savetxt(self.path,self.data,delimiter='\t')
         return
 
     def normalize_data(self,dimension=[]):
@@ -55,6 +61,26 @@ class Dataset:
             self.data[:,i]=(self.data[:,i] - np.min(self.data[:,i]))/_range
         return
 
+    def show_data(self):
+        self.show_shape()
+        with open(self.path,mode='r') as f:
+            for line in f:
+                print(line)
+
+    def show_shape(self):
+        print ("该数据集有%d个%d维数据"%(self.size,self.dimension))
+
+    def draw_data(self):
+        """
+        用matplotlib绘制数据
+        """
+        self.show_shape()
+        # 可视化一下
+        plt.scatter(self.data[:, 0], self.data[:, 1], marker='o', color='r')
+        plt.xlabel('x0')
+        plt.ylabel('x1')
+        plt.show()
+
 def rand_data(n:int,d:int)->Dataset:
     """
     随机生成数据
@@ -67,12 +93,19 @@ def rand_data(n:int,d:int)->Dataset:
     return new_set
 
 def main():
-    a=Dataset(path='testdata/testSet.txt')
-    a.load_data()
-    a.normalize_data()
-    a.write_data(new_path='testdata/testSet.txt.norm')
-
-    rand_data(100,2).write_data(new_path='testdata/randset.txt')
+    # a=Dataset(path='testdata/testSet.txt')
+    # a.load_data()
+    # a.normalize_data()
+    # a.write_data(new_path='testdata/testSet.txt.norm')
+    #
+    # rand_data(100,2).write_data(new_path='testdata/randset.txt')
+    n=1
+    pylab.rcParams['figure.figsize'] = FIG_SIZE
+    a = plt.imread("figure %d.jpg" % (n))
+    plt.axis("off")
+    plt.imshow(a)
+    plt.subplots_adjust(wspace=0)
+    plt.show()
 
 if __name__ == '__main__':
     main()
