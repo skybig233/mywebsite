@@ -6,13 +6,14 @@
 # @Description: 生成模拟数据集
 import random as rd
 import numpy as np
+import pandas as pd
 from typing import Tuple
 import matplotlib.pyplot as plt
 import pylab
 FIG_SIZE=(6,6)
 class Dataset:
 
-    def __init__(self,path='',data=[]):
+    def __init__(self,path='',data:np.ndarray=None):
         self.path=path
         self.data=data
 
@@ -26,21 +27,24 @@ class Dataset:
     def dimension(self):
         return self.data.shape[1]
 
-    def load_data(self)->np.array:
-        """
-        将txt文件中的数据转换成np数组
-        :param filename:模拟数据文件路径
-        :return:np数组
-        """
-        dataset = []
-        with open(self.path) as file:
-            for line in file.readlines():
-                lineArr = line.strip().split('\t')
-                m = len(lineArr)
-                dataset.append(lineArr[0:m])
-            self.data = np.array(dataset, dtype=np.float64)
-            # print("该数据集有%d个%d维数据" % (data.shape[0], data.shape[1]))
-        return self.data
+    def load_data(self):
+        self.data=pd.read_csv(self.path)
+
+    # def load_data(self)->np.array:
+    #     """
+    #     将txt文件中的数据转换成np数组
+    #     :param filename:模拟数据文件路径
+    #     :return:np数组
+    #     """
+    #     dataset = []
+    #     with open(self.path) as file:
+    #         for line in file.readlines():
+    #             lineArr = line.strip().split('\t')
+    #             m = len(lineArr)
+    #             dataset.append(lineArr[0:m])
+    #         self.data = np.array(dataset, dtype=np.float64)
+    #         # print("该数据集有%d个%d维数据" % (data.shape[0], data.shape[1]))
+    #     return self.data
 
     def write_data(self):
         """
@@ -63,9 +67,9 @@ class Dataset:
 
     def show_data(self):
         self.show_shape()
-        with open(self.path,mode='r') as f:
-            for line in f:
-                print(line)
+        # with open(self.path,mode='r') as f:
+        #     for line in f:
+        #         print(line)
 
     def show_shape(self):
         print ("该数据集有%d个%d维数据"%(self.size,self.dimension))
@@ -81,6 +85,7 @@ class Dataset:
         plt.ylabel('x1')
         plt.show()
 
+
 def rand_data(n:int,d:int)->Dataset:
     """
     随机生成数据
@@ -92,20 +97,16 @@ def rand_data(n:int,d:int)->Dataset:
     new_set.data=np.random.rand(n,d)
     return new_set
 
+def pic_data(picpath:str)->Dataset:
+    return
+
 def main():
-    # a=Dataset(path='testdata/testSet.txt')
-    # a.load_data()
+    a=Dataset(path='kmeans/testdata/testSet.txt')
+    a.load_data()
     # a.normalize_data()
-    # a.write_data(new_path='testdata/testSet.txt.norm')
-    #
-    # rand_data(100,2).write_data(new_path='testdata/randset.txt')
-    n=1
-    pylab.rcParams['figure.figsize'] = FIG_SIZE
-    a = plt.imread("figure %d.jpg" % (n))
-    plt.axis("off")
-    plt.imshow(a)
-    plt.subplots_adjust(wspace=0)
-    plt.show()
+    # a.write_data()
+    a.show_data()
+    # rand_data(100,2).write_data()
 
 if __name__ == '__main__':
     main()
