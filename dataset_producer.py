@@ -93,7 +93,7 @@ class Dataset:
     def show_shape(self):
         print ("该数据集有%d个%d维数据"%(self.size,self.dimension))
 
-    def draw_2D_data(self,x=0,y=1):
+    def draw_2D_data(self,x=0,y=1)->plt.figure:
         """
         用matplotlib绘制数据
         :param x:x轴默认是第0列的数据
@@ -101,7 +101,7 @@ class Dataset:
         """
         self.show_shape()
         assert x<self.dimension and y<self.dimension
-
+        fig=plt.figure()
         if self.label==[]:
             # 无标签数据集可视化
             # 可视化一下
@@ -124,7 +124,8 @@ class Dataset:
         else:
             plt.xlabel('x0')
             plt.ylabel('x1')
-        plt.show()
+        return fig
+        # plt.show()
 
     def label_to_nparray(self)->np.ndarray:
         """
@@ -216,14 +217,18 @@ def main():
     # a.show_data()
 
     path='knn_code/testdata/moonSet.txt'
-    new_set=rand_moon_data(300)
-    new_set.path=path
-    new_set.draw_2D_data()
-    new_set.write_data()
+    new_dataset = Dataset(path=path,isLabeled=True)
+    rand_data = np.zeros((1,new_dataset.dimension))
+    for i in range(new_dataset.dimension):
+        low = np.min(new_dataset.data[:, i])
+        high = np.max(new_dataset.data[:, i])
+        # 在该维度下的最小值到最大值中取一个随机数
+        rand_data[0][i] = (high - low) * np.random.sample() + low
+    new_dataset.data=np.append(new_dataset.data, rand_data, axis=0)
+    new_dataset.label.append('testpoint')
+    new_dataset.draw_2D_data()
 
-    # path='knn_code/testdata/IRIS.csv'
-    # new_dataset=Dataset(path=path,isLabeled=True,haveHead=True)
-    # new_dataset.draw_2D_data(x=1,y=2)
+
 
 if __name__ == '__main__':
     main()
