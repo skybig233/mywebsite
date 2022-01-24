@@ -106,7 +106,7 @@ class Dataset:
         if self.label==[]:
             # 无标签数据集可视化
             # 可视化一下
-            ax.scatter(self.data[:, x], self.data[:, y], marker='o', color='r')
+            ax.scatter(self.data[:, x], self.data[:, y], marker='o', color='b')
         else:
             # 有标签数据集可视化
             # 每个标签scatter一次，按label_count中label的顺序（即最多标签的优先scatter）
