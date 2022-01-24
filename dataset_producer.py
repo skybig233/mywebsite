@@ -4,13 +4,19 @@
 # @File    : dataset_producer.py
 # @Software: PyCharm
 # @Description: 1、定义数据集类型2、使用sklearn.datasets生成模拟数据集
+from typing import Union
+
 import matplotlib.figure
 import numpy as np
 import matplotlib.pyplot as plt
+from Cython.Includes.numpy import ndarray
+from numpy import ndarray
 from sklearn.datasets import *
 from collections import Counter
 FIG_SIZE=(6,6)
 class Dataset:
+
+    data: Union[ndarray, ndarray, None]
 
     def __init__(self, path='', data:np.ndarray=None, isLabeled=False, haveHead=False):
         self.path=path
