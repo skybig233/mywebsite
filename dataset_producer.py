@@ -4,8 +4,8 @@
 # @File    : dataset_producer.py
 # @Software: PyCharm
 # @Description: 1、定义数据集类型2、使用sklearn.datasets生成模拟数据集
+import matplotlib.figure
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.datasets import *
 from collections import Counter
@@ -93,7 +93,7 @@ class Dataset:
     def show_shape(self):
         print ("该数据集有%d个%d维数据"%(self.size,self.dimension))
 
-    def draw_2D_data(self,x=0,y=1)->plt.figure:
+    def draw_2D_data(self,x=0,y=1)->(plt.figure,plt.axis):
         """
         用matplotlib绘制数据
         :param x:x轴默认是第0列的数据
@@ -101,30 +101,31 @@ class Dataset:
         """
         self.show_shape()
         assert x<self.dimension and y<self.dimension
-        fig=plt.figure()
+        fig: matplotlib.figure.Figure=plt.figure()
+        ax: matplotlib.figure.Axes = fig.add_subplot(111)
         if self.label==[]:
             # 无标签数据集可视化
             # 可视化一下
-            plt.scatter(self.data[:, x], self.data[:, y], marker='o', color='r')
+            ax.scatter(self.data[:, x], self.data[:, y], marker='o', color='r')
         else:
             # 有标签数据集可视化
             # 每个标签scatter一次，按label_count中label的顺序（即最多标签的优先scatter）
             new_label=self.label_to_nparray()
             for i in range(len(self.label_count)):
-                plt.scatter(self.data[new_label==i][:, x],self.data[new_label==i][:, y],marker='o')
+                ax.scatter(self.data[new_label==i][:, x],self.data[new_label==i][:, y],marker='o')
 
             #设置图例
             legend_title=self.head[-1] if self.head else None
-            plt.legend(self.label_count.keys(),title=legend_title)
+            ax.legend(self.label_count.keys(),title=legend_title)
 
         # 如果数据集有头，那么xy轴就有意义，绘制时要添加说明
         if self.head!=[]:
-            plt.xlabel(self.head[x])
-            plt.ylabel(self.head[y])
+            ax.set_xlabel(self.head[x])
+            ax.set_ylabel(self.head[y])
         else:
-            plt.xlabel('x0')
-            plt.ylabel('x1')
-        return fig
+            ax.set_xlabel('x0')
+            ax.set_ylabel('x1')
+        return fig,ax
         # plt.show()
 
     def label_to_nparray(self)->np.ndarray:
@@ -216,19 +217,17 @@ def main():
     # a.write_data()
     # a.show_data()
 
-    path='knn_code/testdata/moonSet.txt'
-    new_dataset = Dataset(path=path,isLabeled=True)
-    rand_data = np.zeros((1,new_dataset.dimension))
-    for i in range(new_dataset.dimension):
-        low = np.min(new_dataset.data[:, i])
-        high = np.max(new_dataset.data[:, i])
-        # 在该维度下的最小值到最大值中取一个随机数
-        rand_data[0][i] = (high - low) * np.random.sample() + low
-    new_dataset.data=np.append(new_dataset.data, rand_data, axis=0)
-    new_dataset.label.append('testpoint')
-    new_dataset.draw_2D_data()
-
-
+    # path='knn_code/testdata/moonSet.txt'
+    # new_dataset = Dataset(path=path,isLabeled=True)
+    # rand_data = np.zeros((1,new_dataset.dimension))
+    # for i in range(new_dataset.dimension):
+    #     low = np.min(new_dataset.data[:, i])
+    #     high = np.max(new_dataset.data[:, i])
+    #     # 在该维度下的最小值到最大值中取一个随机数
+    #     rand_data[0][i] = (high - low) * np.random.sample() + low
+    # new_dataset.data=np.append(new_dataset.data, rand_data, axis=0)
+    # new_dataset.label.append('testpoint')
+    # new_dataset.draw_2D_data()
 
 if __name__ == '__main__':
     main()
