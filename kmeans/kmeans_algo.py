@@ -42,6 +42,7 @@ def kmeans(data: np.ndarray, centroids: np.ndarray):
     m: int = data.shape[0]  # 样本个数
 
     # 记录样本分配的质心的下标、平方误差，初始化为全0
+    # clstAss第一列是分配的下标、第二列是SE
     clusterAssment = np.zeros((m, 2))
     clusterchanged: bool = True  # 记录分类是否变化
 
@@ -88,11 +89,15 @@ def main():
 
     n = -1
 
+
     for i in range(3):
-        clst = new_dataset.data[np.where(info_list[n].clstAss[:, 0].ravel() == i)]
+        clst_idx = np.where(info_list[n].clstAss[:, 0].ravel() == i)
+        clst = new_dataset.data[clst_idx]
+        clst_se = info_list[n].clstAss[:, 1][clst_idx]
         plt.scatter(clst[:, 0], clst[:, 1], marker='x', c=list(TABLEAU_COLORS)[i])
         plt.scatter(info_list[n].cent[i, 0], info_list[n].cent[i, 1], marker='o', c=list(TABLEAU_COLORS)[i],
                     linewidths=10)
+
     plt.show()
 
 
