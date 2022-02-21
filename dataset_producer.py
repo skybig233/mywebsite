@@ -22,8 +22,9 @@ class Dataset:
     def __init__(self, path='', data:pd.DataFrame=None, haveHead:bool=None):
         self.path=path
         self.data=data
-        #load则label是列表，随机生成则label是np.ndarray
+
         self.count_dict={}
+        self.replace_dict={}
 
         self.head=[]
         if self.path!='':
@@ -38,6 +39,7 @@ class Dataset:
     @property
     def numpydata(self):
         return self.data.to_numpy()
+
     def load_data(self,haveHead=False):
         """
         将txt文件中的数据转换成np数组，存入data属性中，并返回data属性值
@@ -45,7 +47,7 @@ class Dataset:
         :return:np数组
         """
         #预读取加载信息
-        spliter,haveHead,isstr=self.check_head()
+        spliter,haveHead,isstr=self.check_head(haveHead)
 
         with open(self.path) as file:
             dataset = []
@@ -58,13 +60,19 @@ class Dataset:
             self.data=self.data.astype(isstr)
 
     def preprocess_data(self):
+        """
+        预处理，用数字替换字符串，生成count_dict字典，记录每个分类的样本个数
+        :return:
+        """
         for i in range(self.dimension):
             if self.data.dtypes[i]=='object':
                 property_name=self.data.columns[i]
                 clst: pd.Series=self.data[property_name].value_counts()
                 self.count_dict[i]=clst
                 replace_dict={clst.index[i]:i for i in range(len(clst))}
-                self.data[property_name]=self.data[property_name].replace(replace_dict)
+                # TODO: 按理来说replace_dict可以由count_dict按顺序推出，不需要新增这个属性
+                self.replace_dict[property_name]=replace_dict
+                self.data[property_name].replace(replace_dict,inplace=True)
 
     def write_data(self):
         """
@@ -94,9 +102,9 @@ class Dataset:
         :param y:作为y轴的列，默认是第1列的数据
         :param label:分类标签列，可以是int、bool、None，False和None代表无标签，True默认最后一列
         """
-        self.show_shape()
+        # self.show_shape()
         assert x<self.dimension and y<self.dimension
-        fig: matplotlib.figure.Figure=plt.figure()
+        fig: matplotlib.figure.Figure=plt.figure(figsize=(8,8))
         ax: matplotlib.figure.Axes = fig.add_subplot(111)
 
         pltdata=self.data.to_numpy()
@@ -122,40 +130,41 @@ class Dataset:
         ax.set_ylabel(self.head[y])
         return fig,ax
 
-    def check_head(self)->(str,bool,[]):
+    def check_head(self,havehead)->(str,bool,[]):
         """
         读取数据集的两行，可以确定：数据集的分隔符、是否有头、每个属性的名字和数据类型
         :return:分隔符、是否有头、数据类型列表
         """
-        SPLITER = ['\t', ',']#候选分隔符集合
+        SPLITER = ['\t', ',',' ']#候选分隔符集合
         #返回值初始化
         spliter=''
-        headflag=False
+        headflag=False if havehead is None or havehead==False else True
         isstr={}#记录每个属性的数据类型，目前只判断有效数字和字符串 TODO：增加判断类型
 
         with open(self.path) as file:
-            #首先确定分隔符
+            #读取两行来判定
             first,second=file.readline(),file.readline()
-            for i in SPLITER:
-                lineArr = first.strip().split(i)
-                if len(lineArr) > 1:
-                    spliter=i
-                    break
-            #判断完毕直接切分
-            first,second = first.strip().split(spliter),second.strip().split(spliter)
-            #然后确定数据集是否有头
-            for i in range(len(first)):
-                if isNumber(first[i])!=isNumber(second[i]):
-                    headflag=True
-                    break
-            self.head=first if headflag else ['X%d'%i for i in range(len(first))]
-            #最后确定每个属性的数据类型
-            for i in range(len(second)):
-                if isNumber(second[i]):
-                    isstr[self.head[i]]='float32'
-                else:
-                    isstr[self.head[i]] = 'object'
-                    self.count_dict[i]={}
+        #首先确定分隔符
+        for i in SPLITER:
+            lineArr = first.strip().split(i)
+            if len(lineArr) > 1:
+                spliter=i
+                break
+        #判断完毕直接切分
+        first,second = first.strip().split(spliter),second.strip().split(spliter)
+        #然后确定数据集是否有头
+        for i in range(len(first)):
+            if isNumber(first[i])!=isNumber(second[i]):
+                headflag=True
+                break
+        self.head=first if headflag else ['X%d'%i for i in range(len(first))]
+        #最后确定每个属性的数据类型
+        for i in range(len(second)):
+            if isNumber(second[i]):
+                isstr[self.head[i]]='float32'
+            else:
+                isstr[self.head[i]] = 'object'
+                self.count_dict[i]={}
         return spliter,headflag,isstr
 
 TMP_FILE='./tempSet.txt'
@@ -223,12 +232,15 @@ def main():
     """
     测试代码
     """
-    # a=Dataset(path='knn_code/testdata/IRIS.csv')
+    # a=Dataset(path='knn_code/testdata/IRIS.csv',haveHead=False)
     # a = Dataset(path='kmeans/testdata/barsSet.txt')
-    a=rand_uniform_data(300,2)
+    a=Dataset(path='tree/dataset/human.CSV',haveHead=True)
     a.preprocess_data()
-    a.draw_2D_data()
-    plt.show()
+    print(a.replace_dict)
+    # a=rand_uniform_data(300,2)
+    # a.preprocess_data()
+    # a.draw_2D_data()
+    # plt.show()
     # a.show_data()
     # a.load_data()
     # a.normalize_data()
