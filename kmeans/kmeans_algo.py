@@ -33,7 +33,7 @@ def computeDistance(A, B):
 
 def kmeans(data: np.ndarray, centroids: np.ndarray):
     """
-    kmeans核心算法
+    kmeans核心算法，注意返回值包含了每次迭代的结果，最终结果用info_list[-1]查看
     :param data: 样本数据
     :param centroids:初始化的质心
     :return:每次分配结果和质心的数据
@@ -87,8 +87,8 @@ def main():
     centroids = randCentroids(x=new_dataset.data, k=3)
     info_list = kmeans(data=new_dataset.data, centroids=centroids)
 
+    #查看最后一次迭代后的结果
     n = -1
-
 
     for i in range(3):
         clst_idx = np.where(info_list[n].clstAss[:, 0].ravel() == i)
