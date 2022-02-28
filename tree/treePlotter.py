@@ -86,3 +86,7 @@ def retrieveTree(i):
     return listOfTrees[i]
 
 #createPlot(thisTree)
+if __name__ == '__main__':
+    plt.rcParams['font.sans-serif'] = ['SimHei']
+    d={'是否工作': {'是': '是', '否': '否'}}
+    createPlot(d)

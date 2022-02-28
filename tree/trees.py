@@ -40,7 +40,7 @@ def calcShannonEnt(labelCounts:Dict)->float:
 
 def chooseBestFeatureToSplit(numpy_data:np.ndarray):
 
-    Entropy=collections.namedtuple('Entropy',['value','dict'])#为了方便展示熵的计算
+    Entropy=collections.namedtuple('Entropy',['ent_value','ent_dict'])#为了方便展示熵的计算
     show_info:List[Entropy,Dict[int,Dict[str,Entropy]]]=[None,{}]#i[0]总信息熵，i[1]条件信息熵
 
     # numFeatures = len(dataSet[0]) - 1      #the last column is used for the labels
@@ -65,7 +65,7 @@ def chooseBestFeatureToSplit(numpy_data:np.ndarray):
             prob = len(subDataSet)/float(len(numpy_data))
             condition_ent=calcShannonEnt(condition_d)
 
-            show_info[1][i][value]=Entropy(value=condition_ent,dict=condition_d)
+            show_info[1][i][value]=Entropy(condition_ent,condition_d)
 
             newEntropy += prob * condition_ent
         infoGain = baseEntropy - newEntropy     #calculate the info gain; ie reduction in entropy
@@ -88,11 +88,6 @@ def createTree(dataSet:pd.DataFrame):
     :param dataSet:
     :return:
     """
-    # show_tree=[]
-    # show_set=[]
-    # show_ent_info=[]
-    # # 每次执行前展示一下当前数据集
-    # show_set+=dataSet
 
     numpy_set=dataSet.to_numpy()
     classList = numpy_set[:,-1]
@@ -100,10 +95,8 @@ def createTree(dataSet:pd.DataFrame):
         return classList[0]#stop splitting when all of the classes are equal，剩余标签是同一类
     # if len(dataSet[0]) == 1: #stop splitting when there are no more features in dataSet，#只剩下一个数据
     #     return majorityCnt(classList)
-    #show_info用于展示每轮如何选择最好的特征
-    ent_info,bestFeat = chooseBestFeatureToSplit(numpy_set)
 
-    # show_ent_info+=ent_info
+    ent_info,bestFeat = chooseBestFeatureToSplit(numpy_set)
 
     bestFeatLabel = dataSet.columns[bestFeat]
     myTree = {bestFeatLabel:{}}
@@ -114,7 +107,7 @@ def createTree(dataSet:pd.DataFrame):
         filt_set=numpy_set[numpy_set[:,bestFeat]==value,:]
         #用过滤的np.ndarray重新构建df，特征和原来相同，再把最好特征那一列删去
         new_set=pd.DataFrame(data=filt_set,columns=dataSet.columns)
-        new_set.drop(bestFeatLabel,axis=1)
+        # new_set=new_set.drop(bestFeatLabel,axis=1)
         myTree[bestFeatLabel][value] = createTree(new_set)
 
     return myTree
@@ -147,3 +140,4 @@ if __name__ == '__main__':
     my_tree = createTree(new_data.data)
     plt.rcParams['font.sans-serif'] = ['SimHei']
     createPlot(my_tree)
+    print(my_tree)
