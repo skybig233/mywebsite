@@ -13,7 +13,6 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 from dataset_producer import Dataset
-from tree.treePlotter import createPlot
 
 def createDataSet():
     dataSet = [[1, 1, 'yes'],
@@ -132,11 +131,3 @@ def grabTree(filename):
     import pickle
     fr = open(filename)
     return pickle.load(fr)
-    
-if __name__ == '__main__':
-    new_data=Dataset(path='./dataset/weather.CSV',haveHead=True)
-    calcShannonEnt(new_data.data.to_numpy())
-    my_tree = createTree(new_data.data)
-    plt.rcParams['font.sans-serif'] = ['SimHei']
-    createPlot(my_tree)
-    print(my_tree)
